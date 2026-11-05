@@ -1,0 +1,58 @@
+/* STRICT ARIAL FONT - No elegant styles */
+* {
+  font-family: Arial, Helvetica, sans-serif !important;
+}
+
+body {
+  background: #f6f5f4;
+  color: #2b2b2b;
+  -webkit-font-smoothing: antialiased;
+  scroll-behavior: smooth;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+h1,
+h2,
+h3 {
+  color: #000000;
+  font-weight: bold;
+}
+
+/* Sticky Nav Scrollbar Hide */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Image Placeholder Text */
+.placeholder-text {
+  color: #6e7786;
+  font-weight: bold;
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Product Card Hover Shadow */
+.product-card {
+  transition: box-shadow 0.3s ease-in-out;
+}
+.product-card:hover {
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Price Text */
+.price-text {
+  color: #000000 !important;
+  font-weight: bold;
+}

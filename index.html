@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Esmeraldo's Café</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="styles.css" />
+    <script>
+      // Brand colors adjusted to match the logo
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              emerald: {
+                brand: "#08442c",
+                dark: "#042b1c",
+              } /* Changed to match logo */,
+              cream: "#FAF6EC",
+              gold: { DEFAULT: "#C9A227", light: "#E3C86A" },
+              charcoal: "#2B2B2B",
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <!-- Load Database First -->
+    <script src="database.js"></script>
+    <!-- Load React App -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.7/babel.min.js"></script>
+    <script type="text/babel" src="app.js"></script>
+  </body>
+</html>
