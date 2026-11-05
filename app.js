@@ -590,14 +590,14 @@ function App() {
   const [view, setView] = useState("customer");
   const [currentStaff, setCurrentStaff] = useState(null);
 
-  // BUMPED TO v8 TO LOAD THE NEW UNDERSCORE FOLDER PATHS
+  // BUMPED TO v10 TO LOAD THE NEW STANDARDIZED FILENAMES
   const [menuData, setMenuData] = useState(() => {
-    const saved = localStorage.getItem("esmeraldos_menu_v8");
+    const saved = localStorage.getItem("esmeraldos_menu_v10");
     return saved ? JSON.parse(saved) : PRODUCTS;
   });
 
   useEffect(() => {
-    localStorage.setItem("esmeraldos_menu_v8", JSON.stringify(menuData));
+    localStorage.setItem("esmeraldos_menu_v10", JSON.stringify(menuData));
   }, [menuData]);
 
   const handleLogin = (staff) => {
