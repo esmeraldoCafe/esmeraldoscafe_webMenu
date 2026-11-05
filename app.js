@@ -1,6 +1,6 @@
 const { useState, useEffect, useRef } = React;
 
-/* ================= ICONS ================= */
+/* ================= ICONS (Inline SVGs to avoid library crashes) ================= */
 const Svg = ({ size = 24, children }) => (
   <svg
     width={size}
@@ -37,6 +37,12 @@ const IconEyeOff = (p) => (
   </Svg>
 );
 
+const IconX = (p) => (
+  <Svg {...p}>
+    <path d="M18 6 6 18M6 6l12 12" />
+  </Svg>
+);
+
 const IconPhone = (p) => (
   <Svg {...p}>
     <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z" />
@@ -64,6 +70,38 @@ const priceLabel = (p) => {
   if (p.prices.length === 1) return fmt(p.prices[0]);
   return `Regular ${fmt(p.prices[0])} | Large ${fmt(p.prices[1])}`;
 };
+
+/* ================= FLOATING INPUT ================= */
+function FloatingInput({ label, className, ...props }) {
+  const [focused, setFocused] = useState(false);
+  const [hasValue, setHasValue] = useState(false);
+
+  return (
+    <div className="relative">
+      <input
+        className={`peer w-full px-4 py-3 border rounded-lg bg-transparent outline-none border-gray-300 focus:border-emerald-brand transition-colors ${className || ""}`}
+        placeholder=" "
+        onFocus={() => setFocused(true)}
+        onBlur={(e) => {
+          setFocused(false);
+          setHasValue(e.target.value !== "");
+        }}
+        onChange={(e) => {
+          setHasValue(e.target.value !== "");
+          if (props.onChange) props.onChange(e);
+        }}
+        {...props}
+      />
+      <label
+        className={`absolute left-4 top-3 text-gray-500 transition-all duration-200 pointer-events-none peer-focus:-top-2.5 peer-focus:left-3 peer-focus:text-xs peer-focus:bg-white peer-focus:px-1 peer-focus:text-emerald-brand ${
+          focused || hasValue ? "-top-2.5 left-3 text-xs bg-white px-1" : ""
+        }`}
+      >
+        {label}
+      </label>
+    </div>
+  );
+}
 
 /* ================= HEADER ================= */
 function Header({ view, setView, currentStaff, onLogout }) {
@@ -94,10 +132,7 @@ function Header({ view, setView, currentStaff, onLogout }) {
   return (
     <header className="fixed top-0 w-full z-50 bg-emerald-brand shadow-md py-4">
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 relative">
-        {/* Left Spacer to keep the title centered */}
         <div className="w-10"></div>
-
-        {/* Centered Title */}
         <div className="absolute left-1/2 transform -translate-x-1/2">
           <h1
             className="text-cream font-bold text-xl md:text-2xl whitespace-nowrap cursor-pointer"
@@ -106,8 +141,6 @@ function Header({ view, setView, currentStaff, onLogout }) {
             Esmeraldo's Café
           </h1>
         </div>
-
-        {/* Right Side: Account Dropdown */}
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -120,7 +153,6 @@ function Header({ view, setView, currentStaff, onLogout }) {
               </span>
             )}
           </button>
-
           {isDropdownOpen && (
             <div className="absolute right-0 mt-3 w-48 bg-white rounded-md shadow-xl border border-gray-100 overflow-hidden text-sm z-50">
               <div className="bg-gray-50 p-3 border-b">
@@ -143,23 +175,12 @@ function Header({ view, setView, currentStaff, onLogout }) {
                 </button>
               )}
               {view === "staff" && (
-                <>
-                  <button
-                    onClick={() => {
-                      setIsDropdownOpen(false);
-                      setView("staff");
-                    }}
-                    className="w-full text-left px-4 py-3 text-emerald-brand hover:bg-cream font-bold border-b"
-                  >
-                    Go to Dashboard
-                  </button>
-                  <button
-                    onClick={handleLogoutClick}
-                    className="w-full text-left px-4 py-3 text-red-600 hover:bg-red-50 font-bold"
-                  >
-                    Logout
-                  </button>
-                </>
+                <button
+                  onClick={handleLogoutClick}
+                  className="w-full text-left px-4 py-3 text-red-600 hover:bg-red-50 font-bold"
+                >
+                  Logout
+                </button>
               )}
             </div>
           )}
@@ -174,75 +195,127 @@ function Hero() {
   const [imageError, setImageError] = useState(false);
 
   return (
-    <section
-      className="relative h-[70vh] flex items-center justify-center text-cream pt-20"
-      style={{
-        background:
-          "radial-gradient(circle at center, #0a5436 0%, #042b1c 100%)",
-      }}
-    >
-      <div className="text-center px-4 flex flex-col items-center">
+    <section className="relative w-full flex items-center justify-center bg-emerald-brand py-12">
+      <div className="text-center px-4 flex flex-col items-center w-full max-w-4xl mx-auto">
         {!imageError ? (
           <img
             src="logo.png"
             alt="Esmeraldo's Cafe"
-            className="mx-auto w-64 md:w-96 lg:w-[500px] mb-8 drop-shadow-2xl"
+            className="w-full max-w-[300px] md:max-w-[500px] object-contain drop-shadow-2xl"
             onError={() => setImageError(true)}
           />
         ) : (
-          <div className="w-64 md:w-96 lg:w-[500px] mb-8 border-4 border-dashed border-emerald-dark p-10 flex items-center justify-center">
+          <div className="w-full max-w-[300px] md:max-w-[500px] aspect-square border-4 border-dashed border-emerald-dark flex items-center justify-center bg-emerald-dark/30">
             <span className="text-cream/50 font-bold text-xl">
               LOGO.PNG MISSING
             </span>
           </div>
         )}
-        <p className="text-xl md:text-2xl font-bold text-gray-200 drop-shadow-md">
-          partnership ni angkol
-        </p>
       </div>
     </section>
   );
 }
 
-/* ================= CUSTOMER COMPONENTS ================= */
+/* ================= EXPANDABLE PRODUCT CARD ================= */
 function ProductCard({ product }) {
-  const { name, image_url, is_available, is_new } = product;
+  const [isOpen, setIsOpen] = useState(false);
+  const { name, description, image_url, is_available, is_new } = product;
+
   return (
-    <div
-      className={`product-card relative flex flex-col overflow-hidden rounded-lg bg-white border border-gray-200 ${!is_available ? "opacity-60" : ""}`}
-    >
-      <div className="flex aspect-[4/3] items-center justify-center bg-gray-50 relative">
+    <>
+      {/* CARD */}
+      <div
+        onClick={() => setIsOpen(true)}
+        className={`cursor-pointer relative h-64 overflow-hidden rounded-xl border border-gray-200 group shadow-sm bg-white transition-transform duration-300 hover:-translate-y-1 hover:shadow-md ${!is_available ? "opacity-60" : ""}`}
+      >
         {image_url ? (
           <img
             src={image_url}
-            alt={name}
-            className="h-full w-full object-cover"
-            loading="lazy"
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className="placeholder-text">SALPAK MO RITO</span>
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-50">
+            <span className="placeholder-text">Image Unavailable</span>
           </div>
         )}
+
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity" />
+
+        {is_new && (
+          <span className="absolute left-2 top-2 rounded bg-gold px-2 py-0.5 text-xs font-semibold text-emerald-dark z-10">
+            New
+          </span>
+        )}
+        {!is_available && (
+          <span className="absolute right-2 top-2 rounded bg-charcoal px-2 py-0.5 text-xs text-white z-10">
+            Sold Out
+          </span>
+        )}
+
+        <div className="absolute bottom-0 left-0 p-4 w-full translate-y-2 group-hover:translate-y-0 transition-transform duration-300 z-10">
+          <p className="text-gold text-xs font-bold tracking-wide uppercase mb-1">
+            {priceLabel(product)}
+          </p>
+          <h3 className="text-lg font-bold tracking-tight text-white">
+            {name}
+          </h3>
+        </div>
       </div>
-      {is_new && (
-        <span className="absolute left-2 top-2 rounded bg-gold px-2 py-0.5 text-xs font-semibold text-emerald-dark">
-          New
-        </span>
+
+      {/* MODAL */}
+      {isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+            onClick={() => setIsOpen(false)}
+          />
+
+          {/* Modal Content */}
+          <div className="relative w-full max-w-lg bg-white rounded-2xl overflow-hidden border border-gray-200 z-10 flex flex-col shadow-xl animate-modal">
+            <button
+              onClick={() => setIsOpen(false)}
+              className="absolute top-4 right-4 z-20 flex h-8 w-8 items-center justify-center bg-white/80 hover:bg-gray-100 rounded-full text-gray-800 transition-colors backdrop-blur-sm"
+            >
+              <IconX size={16} />
+            </button>
+
+            <div className="relative h-64 w-full shrink-0 overflow-hidden">
+              {image_url ? (
+                <img src={image_url} className="h-full w-full object-cover" />
+              ) : (
+                <div className="h-full w-full flex items-center justify-center bg-gray-50">
+                  <span className="placeholder-text">Image Unavailable</span>
+                </div>
+              )}
+            </div>
+
+            <div className="p-6 flex flex-col overflow-y-auto max-h-[40vh] custom-scrollbar">
+              <p className="text-gold text-sm font-bold tracking-wide uppercase mb-2">
+                {priceLabel(product)}
+              </p>
+              <h3 className="text-2xl font-bold text-emerald-brand mb-4 pb-4 border-b border-gray-200">
+                {name}
+              </h3>
+
+              <div className="text-gray-600 text-sm leading-relaxed grow">
+                {description ? (
+                  <p>{description}</p>
+                ) : (
+                  <p className="italic text-gray-400">
+                    No description available.
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
       )}
-      {!is_available && (
-        <span className="absolute right-2 top-2 rounded bg-charcoal px-2 py-0.5 text-xs text-white">
-          Sold Out
-        </span>
-      )}
-      <div className="p-3">
-        <h3 className="text-base font-bold text-gray-800">{name}</h3>
-        <p className="mt-1 text-sm price-text">{priceLabel(product)}</p>
-      </div>
-    </div>
+    </>
   );
 }
 
+/* ================= MENU GRID & STICKY NAV ================= */
 function MenuGrid({ products }) {
   const [category, setCategory] = useState("All");
   const shown =
@@ -254,19 +327,27 @@ function MenuGrid({ products }) {
     <section id="menu" className="mx-auto max-w-6xl px-4 py-12">
       <h2 className="text-center text-3xl font-bold mb-6 text-black">Menu</h2>
 
+      {/* Sticky Nav */}
       <div className="sticky top-[68px] z-20 bg-[#f6f5f4] py-3 -mx-4 px-4 shadow-sm flex gap-2 overflow-x-auto hide-scrollbar">
-        {["All", ...CATEGORIES].map((c) => (
-          <button
-            key={c}
-            onClick={() => setCategory(c)}
-            className={`shrink-0 rounded-full border px-4 py-1.5 text-sm font-bold transition-colors ${c === category ? "border-emerald-brand bg-emerald-brand text-cream" : "border-gray-300 text-gray-600 hover:border-gold hover:text-gold bg-white"}`}
-          >
-            {c}
-          </button>
-        ))}
+        {["All", ...CATEGORIES].map((c) => {
+          const isActive = c === category;
+          return (
+            <button
+              key={c}
+              onClick={() => setCategory(c)}
+              className={`shrink-0 rounded-full border px-4 py-1.5 text-sm font-bold transition-all duration-300 transform ${
+                isActive
+                  ? "border-emerald-brand bg-emerald-brand text-cream scale-105 shadow-md"
+                  : "border-gray-300 text-gray-600 hover:border-gold hover:text-gold bg-white hover:-translate-y-0.5"
+              }`}
+            >
+              {c}
+            </button>
+          );
+        })}
       </div>
 
-      <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+      <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {shown.map((p) => (
           <ProductCard key={p.id} product={p} />
         ))}
@@ -296,49 +377,36 @@ function StaffLogin({ onLogin, onBack }) {
   return (
     <div className="flex-grow flex items-center justify-center p-4 py-20 pt-32">
       <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md border-t-4 border-emerald-brand">
-        <h2 className="text-2xl font-bold text-center text-emerald-brand mb-6">
+        <h2 className="text-2xl font-bold text-center text-emerald-brand mb-8">
           STAFF LOGIN
         </h2>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div>
-            <label className="text-sm font-bold text-gray-600 mb-1 block">
-              Full Name
-            </label>
-            <input
-              type="text"
-              placeholder="e.g. Maria Clara"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full border p-3 rounded focus:outline-none focus:ring-2 focus:ring-emerald-brand"
+        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+          <FloatingInput
+            label="Full Name"
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+
+          <div className="relative">
+            <FloatingInput
+              label="Password"
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               required
+              className="pr-12"
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-emerald-brand z-10"
+            >
+              {showPassword ? <IconEyeOff size={20} /> : <IconEye size={20} />}
+            </button>
           </div>
-          <div>
-            <label className="text-sm font-bold text-gray-600 mb-1 block">
-              Password
-            </label>
-            <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                placeholder="Enter Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full border p-3 rounded focus:outline-none focus:ring-2 focus:ring-emerald-brand pr-12"
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-emerald-brand"
-              >
-                {showPassword ? (
-                  <IconEyeOff size={20} />
-                ) : (
-                  <IconEye size={20} />
-                )}
-              </button>
-            </div>
-          </div>
+
           {error && (
             <p className="text-red-500 text-sm font-bold text-center">
               {error}
@@ -353,7 +421,7 @@ function StaffLogin({ onLogin, onBack }) {
           <button
             type="button"
             onClick={onBack}
-            className="text-gray-500 text-sm underline mt-2"
+            className="text-gray-500 text-sm underline"
           >
             Cancel
           </button>
@@ -364,20 +432,104 @@ function StaffLogin({ onLogin, onBack }) {
 }
 
 function StaffDashboard({ menuData, setMenuData, currentStaff }) {
-  const [newItem, setNewItem] = useState({
+  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState({
+    id: null,
     category: CATEGORIES[0],
     name: "",
     regPrice: "",
     largePrice: "",
+    description: "",
   });
 
-  const toggleAvailability = (id) => {
+  const handleChange = (e) =>
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+
+  const resetForm = () => {
+    setFormData({
+      id: null,
+      category: CATEGORIES[0],
+      name: "",
+      regPrice: "",
+      largePrice: "",
+      description: "",
+    });
+    setIsEditing(false);
+  };
+
+  const handleEditClick = (item) => {
+    setFormData({
+      id: item.id,
+      category: item.category,
+      name: item.name,
+      regPrice: item.prices[0] || "",
+      largePrice: item.prices[1] || "",
+      description: item.description || "",
+    });
+    setIsEditing(true);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleSaveItem = (e) => {
+    e.preventDefault();
+    if (!formData.name || !formData.regPrice)
+      return alert("Please fill in name and regular price.");
+
+    if (
+      window.confirm(
+        isEditing
+          ? "Save changes to this dish?"
+          : `Are you sure you want to add ${formData.name}?`,
+      )
+    ) {
+      const prices = [parseInt(formData.regPrice)];
+      if (formData.largePrice) prices.push(parseInt(formData.largePrice));
+
+      if (isEditing) {
+        setMenuData(
+          menuData.map((item) =>
+            item.id === formData.id
+              ? {
+                  ...item,
+                  name: formData.name,
+                  category: formData.category,
+                  prices: prices,
+                  description: formData.description,
+                }
+              : item,
+          ),
+        );
+        alert("Item updated successfully!");
+      } else {
+        const newId = (
+          Math.max(...menuData.map((i) => parseInt(i.id) || 0)) + 1
+        ).toString();
+        setMenuData([
+          ...menuData,
+          {
+            id: newId,
+            name: formData.name,
+            prices: prices,
+            category: formData.category,
+            image_url: null,
+            description: formData.description,
+            is_available: true,
+            is_new: true,
+            options: [],
+          },
+        ]);
+        alert("Item added successfully!");
+      }
+      resetForm();
+    }
+  };
+
+  const toggleAvailability = (id) =>
     setMenuData(
       menuData.map((item) =>
         item.id === id ? { ...item, is_available: !item.is_available } : item,
       ),
     );
-  };
 
   const deleteItem = (id) => {
     if (
@@ -386,42 +538,6 @@ function StaffDashboard({ menuData, setMenuData, currentStaff }) {
       )
     ) {
       setMenuData(menuData.filter((item) => item.id !== id));
-    }
-  };
-
-  const handleAddItem = (e) => {
-    e.preventDefault();
-    if (!newItem.name || !newItem.regPrice)
-      return alert("Please fill in name and regular price.");
-
-    if (
-      window.confirm(
-        `Are you sure you want to add ${newItem.name} to the menu?`,
-      )
-    ) {
-      const newId = (
-        Math.max(...menuData.map((i) => parseInt(i.id) || 0)) + 1
-      ).toString();
-
-      const prices = [parseInt(newItem.regPrice)];
-      if (newItem.largePrice) prices.push(parseInt(newItem.largePrice));
-
-      setMenuData([
-        ...menuData,
-        {
-          id: newId,
-          name: newItem.name,
-          prices: prices,
-          category: newItem.category,
-          image_url: null,
-          is_available: true,
-          is_new: true,
-          options: [],
-        },
-      ]);
-
-      setNewItem({ ...newItem, name: "", regPrice: "", largePrice: "" });
-      alert("Item added successfully!");
     }
   };
 
@@ -437,57 +553,78 @@ function StaffDashboard({ menuData, setMenuData, currentStaff }) {
         </p>
       </div>
 
-      <div className="bg-white p-6 rounded-lg shadow-md mb-8 border-t-4 border-gold">
-        <h2 className="text-xl font-bold mb-4 text-emerald-brand">
-          Add New Dish
-        </h2>
-        <form
-          onSubmit={handleAddItem}
-          className="flex flex-col md:flex-row gap-4"
-        >
-          <select
-            value={newItem.category}
-            onChange={(e) =>
-              setNewItem({ ...newItem, category: e.target.value })
-            }
-            className="border p-2 rounded flex-1"
-          >
-            {CATEGORIES.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
-              </option>
-            ))}
-          </select>
-          <input
-            type="text"
-            placeholder="Dish Name"
-            value={newItem.name}
-            onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
-            className="border p-2 rounded flex-1"
-          />
-          <input
-            type="number"
-            placeholder="Regular Price"
-            value={newItem.regPrice}
-            onChange={(e) =>
-              setNewItem({ ...newItem, regPrice: e.target.value })
-            }
-            className="border p-2 rounded w-full md:w-32"
-          />
-          <input
-            type="number"
-            placeholder="Large Price (Optional)"
-            value={newItem.largePrice}
-            onChange={(e) =>
-              setNewItem({ ...newItem, largePrice: e.target.value })
-            }
-            className="border p-2 rounded w-full md:w-32"
-          />
+      <div
+        className={`bg-white p-6 rounded-lg shadow-md mb-8 border-t-4 ${isEditing ? "border-blue-500" : "border-gold"}`}
+      >
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold text-emerald-brand">
+            {isEditing ? "Edit Dish" : "Add New Dish"}
+          </h2>
+          {isEditing && (
+            <button
+              onClick={resetForm}
+              className="text-sm text-red-500 underline font-bold"
+            >
+              Cancel Edit
+            </button>
+          )}
+        </div>
+
+        <form onSubmit={handleSaveItem} className="flex flex-col gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <input
+              type="text"
+              name="name"
+              placeholder="Dish Name"
+              value={formData.name}
+              onChange={handleChange}
+              className="border p-2 rounded md:col-span-2"
+              required
+            />
+            <select
+              name="category"
+              value={formData.category}
+              onChange={handleChange}
+              className="border p-2 rounded"
+            >
+              {CATEGORIES.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
+              ))}
+            </select>
+            <input
+              type="number"
+              name="regPrice"
+              placeholder="Reg Price"
+              value={formData.regPrice}
+              onChange={handleChange}
+              className="border p-2 rounded"
+              required
+            />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <input
+              type="number"
+              name="largePrice"
+              placeholder="Large Price (Optional)"
+              value={formData.largePrice}
+              onChange={handleChange}
+              className="border p-2 rounded"
+            />
+          </div>
+          <textarea
+            name="description"
+            placeholder="Dish Description (Optional)"
+            value={formData.description}
+            onChange={handleChange}
+            className="border p-2 rounded w-full h-20"
+          ></textarea>
           <button
             type="submit"
-            className="bg-emerald-brand text-white px-6 py-2 rounded font-bold hover:bg-emerald-dark"
+            className={`text-white px-6 py-3 rounded font-bold w-full md:w-auto md:self-end ${isEditing ? "bg-blue-600 hover:bg-blue-700" : "bg-emerald-brand hover:bg-emerald-dark"}`}
           >
-            Add
+            {isEditing ? "Save Changes" : "Add Dish"}
           </button>
         </form>
       </div>
@@ -521,8 +658,13 @@ function StaffDashboard({ menuData, setMenuData, currentStaff }) {
                             : "Malaman"}
                       </p>
                     </div>
-
                     <div className="flex gap-2 mt-auto pt-2 border-t border-gray-200">
+                      <button
+                        onClick={() => handleEditClick(item)}
+                        className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 text-xs rounded flex-1"
+                      >
+                        Edit
+                      </button>
                       <button
                         onClick={() => toggleAvailability(item.id)}
                         className={`px-2 py-1 text-xs rounded text-white flex-1 ${item.is_available ? "bg-orange-500 hover:bg-orange-600" : "bg-green-500 hover:bg-green-600"}`}
@@ -552,7 +694,7 @@ function Footer() {
   return (
     <footer className="bg-emerald-brand py-10 text-center text-cream mt-12">
       <p className="text-lg italic font-bold">
-        "Care no less char, ewan ko, baka may tagline sila"
+        Every bite here is made to make you smile
       </p>
       <div className="mt-4 flex items-center justify-center gap-5">
         <a
@@ -590,21 +732,19 @@ function App() {
   const [view, setView] = useState("customer");
   const [currentStaff, setCurrentStaff] = useState(null);
 
-  // BUMPED TO v10 TO LOAD THE NEW STANDARDIZED FILENAMES
   const [menuData, setMenuData] = useState(() => {
-    const saved = localStorage.getItem("esmeraldos_menu_v10");
+    const saved = localStorage.getItem("esmeraldos_menu_v20");
     return saved ? JSON.parse(saved) : PRODUCTS;
   });
 
   useEffect(() => {
-    localStorage.setItem("esmeraldos_menu_v10", JSON.stringify(menuData));
+    localStorage.setItem("esmeraldos_menu_v20", JSON.stringify(menuData));
   }, [menuData]);
 
   const handleLogin = (staff) => {
     setCurrentStaff(staff);
     setView("staff");
   };
-
   const handleLogout = () => {
     setCurrentStaff(null);
     setView("customer");
@@ -624,20 +764,21 @@ function App() {
       />
 
       {view === "customer" && (
-        <main className="flex-grow">
+        <main className="flex-grow pt-[68px]">
           <Hero />
+
           <section
             id="about"
             className="mx-auto max-w-3xl px-4 py-12 text-center"
           >
             <h2 className="text-3xl font-bold text-black">About Us</h2>
-            <p className="mt-4 text-lg">BAHALA MUNA SI BATMAN</p>
+            <p className="mt-4 text-lg">Welcome To esmeraldo's cafe, your cozy corner for comfort and connection. We serve freshly brewed coffee, handcrafted pastries, and hearty meals</p>
           </section>
           <section className="mx-auto max-w-6xl px-4 pb-4">
             <h2 className="text-center text-3xl font-bold mb-6 text-black">
               Featured Items
             </h2>
-            <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {featured.map((p) => (
                 <ProductCard key={p.id} product={p} />
               ))}
