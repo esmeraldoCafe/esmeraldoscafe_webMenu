@@ -23,7 +23,6 @@ h3 {
   font-weight: bold;
 }
 
-/* Sticky Nav Scrollbar Hide */
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -32,7 +31,6 @@ h3 {
   scrollbar-width: none;
 }
 
-/* Image Placeholder Text */
 .placeholder-text {
   color: #6e7786;
   font-weight: bold;
@@ -41,18 +39,23 @@ h3 {
   text-transform: uppercase;
 }
 
-/* Product Card Hover Shadow */
-.product-card {
-  transition: box-shadow 0.3s ease-in-out;
-}
-.product-card:hover {
-  box-shadow:
-    0 10px 15px -3px rgba(0, 0, 0, 0.1),
-    0 4px 6px -2px rgba(0, 0, 0, 0.05);
-}
-
-/* Price Text */
 .price-text {
   color: #000000 !important;
   font-weight: bold;
+}
+
+/* Modal Animation */
+@keyframes scaleUp {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-modal {
+  animation: scaleUp 0.2s ease-out forwards;
 }
