@@ -302,7 +302,7 @@ function ProductCard({ product }) {
                 {description ? (
                   <p>{description}</p>
                 ) : (
-                  <p className="italic text-gray-400">
+                  <p className="bold text-gray-400">
                     No description available.
                   </p>
                 )}
