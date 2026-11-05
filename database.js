@@ -4,7 +4,6 @@ const slug = (s) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
 
-// 4th parameter is for the image path (folder + filename)
 const mk = (category, rows, suffix = "") =>
   rows.map(([name, prices = [], options = [], imageName = null]) => ({
     id: slug(`${category}-${name}${suffix}`),
@@ -21,7 +20,6 @@ const mk = (category, rows, suffix = "") =>
 const CATEGORIES = [
   "All Day Breakfast",
   "Waffle",
-  "Bread and Pastries",
   "Snacks",
   "Pasta",
   "Wings/Fries",
@@ -78,18 +76,6 @@ const PRODUCTS = [
     ],
     ["Nutella Waffle", [160], [], "images/SPECIAL_WAFFLE/waffle-nutella.webp"],
     ["Blueberry Waffle", [160], [], null],
-  ]),
-  ...mk("Bread and Pastries", [
-    ["Cookies", [0], [], "images/BREAD_AND_PASTRY/cookies.webp"],
-    ["Brownies", [0], [], "images/BREAD_AND_PASTRY/brownies.webp"],
-    ["Biscoff Cake", [0], [], "images/BREAD_AND_PASTRY/biscoff-cake.webp"],
-    [
-      "Blueberry Cheesecake",
-      [0],
-      [],
-      "images/BREAD_AND_PASTRY/blueberry-cheesecake.webp",
-    ],
-    ["Leche Flan", [0], [], "images/BREAD_AND_PASTRY/leche-flan.webp"],
   ]),
   ...mk("Snacks", [
     ["Spam & Fries", [130], [], null],
@@ -367,7 +353,6 @@ const FEATURED_IDS = [
   "iced-coffee-spanish-latte",
 ];
 
-//Staff
 const staffDatabase = [
   { name: "Maria Clara", password: "staff123" },
   { name: "Crisostomo Ibarra", password: "staff456" },
