@@ -1,6 +1,12 @@
 const { useState, useEffect, useRef } = React;
 
-/* ================= ICONS (Inline SVGs to avoid library crashes) ================= */
+/* ================= SUPABASE CONFIGURATION ================= */
+const SUPABASE_URL = "https://wvesfkcmtvfubvkcirrk.supabase.co";
+const SUPABASE_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind2ZXNma2NtdHZmdWJ2a2NpcnJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM5MDYxMTgsImV4cCI6MjEwOTQ4MjExOH0.SdA0LVvhTZpjHcZXUc6FBOM0K_gUbC6wBVynbIb3Yho";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+/* ================= ICONS ================= */
 const Svg = ({ size = 24, children }) => (
   <svg
     width={size}
@@ -15,46 +21,39 @@ const Svg = ({ size = 24, children }) => (
     {children}
   </svg>
 );
-
 const IconUser = (p) => (
   <Svg {...p}>
     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
     <circle cx="12" cy="7" r="4" />
   </Svg>
 );
-
 const IconEye = (p) => (
   <Svg {...p}>
     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
     <circle cx="12" cy="12" r="3" />
   </Svg>
 );
-
 const IconEyeOff = (p) => (
   <Svg {...p}>
     <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
     <line x1="1" y1="1" x2="23" y2="23" />
   </Svg>
 );
-
 const IconX = (p) => (
   <Svg {...p}>
     <path d="M18 6 6 18M6 6l12 12" />
   </Svg>
 );
-
 const IconPhone = (p) => (
   <Svg {...p}>
     <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z" />
   </Svg>
 );
-
 const IconFb = (p) => (
   <Svg {...p}>
     <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
   </Svg>
 );
-
 const IconIg = (p) => (
   <Svg {...p}>
     <rect x="2" y="2" width="20" height="20" rx="5" />
@@ -66,16 +65,23 @@ const IconIg = (p) => (
 /* ================= HELPERS ================= */
 const fmt = (n) => `₱${n}`;
 const priceLabel = (p) => {
-  if (!p.prices || p.prices.length === 0) return "Malaman";
-  if (p.prices.length === 1) return fmt(p.prices[0]);
-  return `Regular ${fmt(p.prices[0])} | Large ${fmt(p.prices[1])}`;
+  let pArr = p.prices;
+  if (typeof pArr === "string") {
+    try {
+      pArr = JSON.parse(pArr);
+    } catch (e) {
+      pArr = [];
+    }
+  }
+  if (!pArr || pArr.length === 0) return "Malaman";
+  if (pArr.length === 1) return fmt(pArr[0]);
+  return `Regular ${fmt(pArr[0])} | Large ${fmt(pArr[1])}`;
 };
 
 /* ================= FLOATING INPUT ================= */
 function FloatingInput({ label, className, ...props }) {
   const [focused, setFocused] = useState(false);
   const [hasValue, setHasValue] = useState(false);
-
   return (
     <div className="relative">
       <input
@@ -93,9 +99,7 @@ function FloatingInput({ label, className, ...props }) {
         {...props}
       />
       <label
-        className={`absolute left-4 top-3 text-gray-500 transition-all duration-200 pointer-events-none peer-focus:-top-2.5 peer-focus:left-3 peer-focus:text-xs peer-focus:bg-white peer-focus:px-1 peer-focus:text-emerald-brand ${
-          focused || hasValue ? "-top-2.5 left-3 text-xs bg-white px-1" : ""
-        }`}
+        className={`absolute left-4 top-3 text-gray-500 transition-all duration-200 pointer-events-none peer-focus:-top-2.5 peer-focus:left-3 peer-focus:text-xs peer-focus:bg-white peer-focus:px-1 peer-focus:text-emerald-brand ${focused || hasValue ? "-top-2.5 left-3 text-xs bg-white px-1" : ""}`}
       >
         {label}
       </label>
@@ -107,23 +111,16 @@ function FloatingInput({ label, className, ...props }) {
 function Header({ view, setView, currentStaff, onLogout }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
-
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target))
         setIsDropdownOpen(false);
-      }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
   const handleLogoutClick = () => {
-    if (
-      window.confirm(
-        "Are you sure you want to log out? Any unsaved changes might be lost.",
-      )
-    ) {
+    if (window.confirm("Are you sure you want to log out?")) {
       setIsDropdownOpen(false);
       onLogout();
     }
@@ -193,14 +190,13 @@ function Header({ view, setView, currentStaff, onLogout }) {
 /* ================= HERO SECTION ================= */
 function Hero() {
   const [imageError, setImageError] = useState(false);
-
   return (
     <section className="relative w-full flex items-center justify-center bg-emerald-brand py-12">
       <div className="text-center px-4 flex flex-col items-center w-full max-w-4xl mx-auto">
         {!imageError ? (
           <img
             src="logo.png"
-            alt="Esmeraldo's Cafe"
+            alt="Logo"
             className="w-full max-w-[300px] md:max-w-[500px] object-contain drop-shadow-2xl"
             onError={() => setImageError(true)}
           />
@@ -216,14 +212,12 @@ function Hero() {
   );
 }
 
-/* ================= EXPANDABLE PRODUCT CARD ================= */
+/* ================= PRODUCT CARD ================= */
 function ProductCard({ product }) {
   const [isOpen, setIsOpen] = useState(false);
   const { name, description, image_url, is_available, is_new } = product;
-
   return (
     <>
-      {/* CARD */}
       <div
         onClick={() => setIsOpen(true)}
         className={`cursor-pointer relative h-64 overflow-hidden rounded-xl border border-gray-200 group shadow-sm bg-white transition-transform duration-300 hover:-translate-y-1 hover:shadow-md ${!is_available ? "opacity-60" : ""}`}
@@ -238,9 +232,7 @@ function ProductCard({ product }) {
             <span className="placeholder-text">Image Unavailable</span>
           </div>
         )}
-
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity" />
-
         {is_new && (
           <span className="absolute left-2 top-2 rounded bg-gold px-2 py-0.5 text-xs font-semibold text-emerald-dark z-10">
             New
@@ -251,7 +243,6 @@ function ProductCard({ product }) {
             Sold Out
           </span>
         )}
-
         <div className="absolute bottom-0 left-0 p-4 w-full translate-y-2 group-hover:translate-y-0 transition-transform duration-300 z-10">
           <p className="text-gold text-xs font-bold tracking-wide uppercase mb-1">
             {priceLabel(product)}
@@ -261,17 +252,12 @@ function ProductCard({ product }) {
           </h3>
         </div>
       </div>
-
-      {/* MODAL */}
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          {/* Backdrop */}
           <div
             className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
             onClick={() => setIsOpen(false)}
           />
-
-          {/* Modal Content */}
           <div className="relative w-full max-w-lg bg-white rounded-2xl overflow-hidden border border-gray-200 z-10 flex flex-col shadow-xl animate-modal">
             <button
               onClick={() => setIsOpen(false)}
@@ -279,7 +265,6 @@ function ProductCard({ product }) {
             >
               <IconX size={16} />
             </button>
-
             <div className="relative h-64 w-full shrink-0 overflow-hidden">
               {image_url ? (
                 <img src={image_url} className="h-full w-full object-cover" />
@@ -289,7 +274,6 @@ function ProductCard({ product }) {
                 </div>
               )}
             </div>
-
             <div className="p-6 flex flex-col overflow-y-auto max-h-[40vh] custom-scrollbar">
               <p className="text-gold text-sm font-bold tracking-wide uppercase mb-2">
                 {priceLabel(product)}
@@ -297,14 +281,11 @@ function ProductCard({ product }) {
               <h3 className="text-2xl font-bold text-emerald-brand mb-4 pb-4 border-b border-gray-200">
                 {name}
               </h3>
-
               <div className="text-gray-600 text-sm leading-relaxed grow">
                 {description ? (
                   <p>{description}</p>
                 ) : (
-                  <p className="bold text-gray-400">
-                    No description available.
-                  </p>
+                  <p className="text-gray-400">No description available.</p>
                 )}
               </div>
             </div>
@@ -315,38 +296,35 @@ function ProductCard({ product }) {
   );
 }
 
-/* ================= MENU GRID & STICKY NAV ================= */
-function MenuGrid({ products }) {
+/* ================= MENU GRID ================= */
+function MenuGrid({ products, loading }) {
   const [category, setCategory] = useState("All");
   const shown =
     category === "All"
       ? products
       : products.filter((p) => p.category === category);
 
+  if (loading)
+    return (
+      <div className="text-center py-20 text-xl font-bold text-emerald-brand">
+        Loading menu from database...
+      </div>
+    );
+
   return (
     <section id="menu" className="mx-auto max-w-6xl px-4 py-12">
       <h2 className="text-center text-3xl font-bold mb-6 text-black">Menu</h2>
-
-      {/* Sticky Nav */}
       <div className="sticky top-[68px] z-20 bg-[#f6f5f4] py-3 -mx-4 px-4 shadow-sm flex gap-2 overflow-x-auto hide-scrollbar">
-        {["All", ...CATEGORIES].map((c) => {
-          const isActive = c === category;
-          return (
-            <button
-              key={c}
-              onClick={() => setCategory(c)}
-              className={`shrink-0 rounded-full border px-4 py-1.5 text-sm font-bold transition-all duration-300 transform ${
-                isActive
-                  ? "border-emerald-brand bg-emerald-brand text-cream scale-105 shadow-md"
-                  : "border-gray-300 text-gray-600 hover:border-gold hover:text-gold bg-white hover:-translate-y-0.5"
-              }`}
-            >
-              {c}
-            </button>
-          );
-        })}
+        {["All", ...CATEGORIES].map((c) => (
+          <button
+            key={c}
+            onClick={() => setCategory(c)}
+            className={`shrink-0 rounded-full border px-4 py-1.5 text-sm font-bold transition-all duration-300 transform ${c === category ? "border-emerald-brand bg-emerald-brand text-cream scale-105 shadow-md" : "border-gray-300 text-gray-600 hover:border-gold hover:text-gold bg-white hover:-translate-y-0.5"}`}
+          >
+            {c}
+          </button>
+        ))}
       </div>
-
       <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {shown.map((p) => (
           <ProductCard key={p.id} product={p} />
@@ -356,7 +334,7 @@ function MenuGrid({ products }) {
   );
 }
 
-/* ================= STAFF COMPONENTS ================= */
+/* ================= STAFF LOGIN ================= */
 function StaffLogin({ onLogin, onBack }) {
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
@@ -388,7 +366,6 @@ function StaffLogin({ onLogin, onBack }) {
             onChange={(e) => setName(e.target.value)}
             required
           />
-
           <div className="relative">
             <FloatingInput
               label="Password"
@@ -406,7 +383,6 @@ function StaffLogin({ onLogin, onBack }) {
               {showPassword ? <IconEyeOff size={20} /> : <IconEye size={20} />}
             </button>
           </div>
-
           {error && (
             <p className="text-red-500 text-sm font-bold text-center">
               {error}
@@ -431,8 +407,10 @@ function StaffLogin({ onLogin, onBack }) {
   );
 }
 
-function StaffDashboard({ menuData, setMenuData, currentStaff }) {
+/* ================= STAFF DASHBOARD ================= */
+function StaffDashboard({ menuData, fetchMenu, currentStaff }) {
   const [isEditing, setIsEditing] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState({
     id: null,
     category: CATEGORIES[0],
@@ -440,11 +418,12 @@ function StaffDashboard({ menuData, setMenuData, currentStaff }) {
     regPrice: "",
     largePrice: "",
     description: "",
+    image_url: "",
   });
+  const fileInputRef = useRef(null);
 
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
-
   const resetForm = () => {
     setFormData({
       id: null,
@@ -453,28 +432,54 @@ function StaffDashboard({ menuData, setMenuData, currentStaff }) {
       regPrice: "",
       largePrice: "",
       description: "",
+      image_url: "",
     });
     setIsEditing(false);
   };
 
   const handleEditClick = (item) => {
+    const parsedPrices =
+      typeof item.prices === "string" ? JSON.parse(item.prices) : item.prices;
     setFormData({
       id: item.id,
       category: item.category,
       name: item.name,
-      regPrice: item.prices[0] || "",
-      largePrice: item.prices[1] || "",
+      regPrice: parsedPrices[0] || "",
+      largePrice: parsedPrices[1] || "",
       description: item.description || "",
+      image_url: item.image_url || "",
     });
     setIsEditing(true);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleSaveItem = (e) => {
+  const handleImageUpload = async (e) => {
+    try {
+      setUploading(true);
+      const file = e.target.files[0];
+      if (!file) return;
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const { error: uploadError } = await supabaseClient.storage
+        .from("dish-images")
+        .upload(fileName, file);
+      if (uploadError) throw uploadError;
+      const { data } = supabaseClient.storage
+        .from("dish-images")
+        .getPublicUrl(fileName);
+      setFormData({ ...formData, image_url: data.publicUrl });
+      alert("Image uploaded successfully!");
+    } catch (error) {
+      alert("Error uploading image: " + error.message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleSaveItem = async (e) => {
     e.preventDefault();
     if (!formData.name || !formData.regPrice)
       return alert("Please fill in name and regular price.");
-
     if (
       window.confirm(
         isEditing
@@ -484,73 +489,72 @@ function StaffDashboard({ menuData, setMenuData, currentStaff }) {
     ) {
       const prices = [parseInt(formData.regPrice)];
       if (formData.largePrice) prices.push(parseInt(formData.largePrice));
+      const payload = {
+        name: formData.name,
+        category: formData.category,
+        prices: prices,
+        description: formData.description,
+        image_url: formData.image_url || null,
+      };
 
       if (isEditing) {
-        setMenuData(
-          menuData.map((item) =>
-            item.id === formData.id
-              ? {
-                  ...item,
-                  name: formData.name,
-                  category: formData.category,
-                  prices: prices,
-                  description: formData.description,
-                }
-              : item,
-          ),
-        );
-        alert("Item updated successfully!");
+        const { error } = await supabaseClient
+          .from("menu_items")
+          .update(payload)
+          .eq("id", formData.id);
+        if (error) alert("Error updating: " + error.message);
+        else {
+          alert("Item updated!");
+          fetchMenu();
+        }
       } else {
-        const newId = (
-          Math.max(...menuData.map((i) => parseInt(i.id) || 0)) + 1
-        ).toString();
-        setMenuData([
-          ...menuData,
-          {
-            id: newId,
-            name: formData.name,
-            prices: prices,
-            category: formData.category,
-            image_url: null,
-            description: formData.description,
-            is_available: true,
-            is_new: true,
-            options: [],
-          },
-        ]);
-        alert("Item added successfully!");
+        const { error } = await supabaseClient
+          .from("menu_items")
+          .insert([{ ...payload, is_available: true, is_new: true }]);
+        if (error) alert("Error adding: " + error.message);
+        else {
+          alert("Item added!");
+          fetchMenu();
+        }
       }
       resetForm();
     }
   };
 
-  const toggleAvailability = (id) =>
-    setMenuData(
-      menuData.map((item) =>
-        item.id === id ? { ...item, is_available: !item.is_available } : item,
-      ),
-    );
+  const toggleAvailability = async (id, currentStatus) => {
+    const { error } = await supabaseClient
+      .from("menu_items")
+      .update({ is_available: !currentStatus })
+      .eq("id", id);
+    if (!error) fetchMenu();
+  };
 
-  const deleteItem = (id) => {
+  const deleteItem = async (id) => {
     if (
       window.confirm(
         "Are you sure you want to DELETE this dish? This cannot be undone.",
       )
     ) {
-      setMenuData(menuData.filter((item) => item.id !== id));
+      const { error } = await supabaseClient
+        .from("menu_items")
+        .delete()
+        .eq("id", id);
+      if (!error) fetchMenu();
     }
   };
 
   return (
     <div className="max-w-6xl mx-auto w-full p-4 md:p-8 pt-32">
-      <div className="mb-8 border-b pb-4">
-        <h1 className="text-3xl font-bold text-emerald-brand">
-          STAFF DASHBOARD
-        </h1>
-        <p className="text-gray-600">
-          Welcome,{" "}
-          <span className="font-bold text-gold">{currentStaff?.name}</span>!
-        </p>
+      <div className="mb-8 border-b pb-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-emerald-brand">
+            STAFF DASHBOARD
+          </h1>
+          <p className="text-gray-600">
+            Welcome,{" "}
+            <span className="font-bold text-gold">{currentStaff?.name}</span>!
+          </p>
+        </div>
       </div>
 
       <div
@@ -603,6 +607,7 @@ function StaffDashboard({ menuData, setMenuData, currentStaff }) {
               required
             />
           </div>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <input
               type="number"
@@ -612,7 +617,33 @@ function StaffDashboard({ menuData, setMenuData, currentStaff }) {
               onChange={handleChange}
               className="border p-2 rounded"
             />
+            <div className="md:col-span-2 flex items-center gap-2">
+              <input
+                type="text"
+                name="image_url"
+                placeholder="Image URL (auto-fills upon upload)"
+                value={formData.image_url}
+                readOnly
+                className="border p-2 rounded flex-grow bg-gray-50 text-gray-500 text-sm"
+              />
+              <input
+                type="file"
+                accept="image/*"
+                ref={fileInputRef}
+                onChange={handleImageUpload}
+                className="hidden"
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current.click()}
+                disabled={uploading}
+                className="bg-gray-800 text-white px-4 py-2 rounded font-bold text-sm hover:bg-gray-900 whitespace-nowrap"
+              >
+                {uploading ? "Uploading..." : "Upload Image"}
+              </button>
+            </div>
           </div>
+
           <textarea
             name="description"
             placeholder="Dish Description (Optional)"
@@ -622,6 +653,7 @@ function StaffDashboard({ menuData, setMenuData, currentStaff }) {
           ></textarea>
           <button
             type="submit"
+            disabled={uploading}
             className={`text-white px-6 py-3 rounded font-bold w-full md:w-auto md:self-end ${isEditing ? "bg-blue-600 hover:bg-blue-700" : "bg-emerald-brand hover:bg-emerald-dark"}`}
           >
             {isEditing ? "Save Changes" : "Add Dish"}
@@ -633,7 +665,6 @@ function StaffDashboard({ menuData, setMenuData, currentStaff }) {
         {CATEGORIES.map((category) => {
           const items = menuData.filter((item) => item.category === category);
           if (items.length === 0) return null;
-
           return (
             <div
               key={category}
@@ -643,43 +674,51 @@ function StaffDashboard({ menuData, setMenuData, currentStaff }) {
                 {category}
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {items.map((item) => (
-                  <div
-                    key={item.id}
-                    className={`flex flex-col p-3 border rounded ${!item.is_available ? "bg-gray-100" : ""}`}
-                  >
-                    <div className="mb-2">
-                      <p className="font-bold text-sm">{item.name}</p>
-                      <p className="text-xs font-bold text-black">
-                        {item.prices && item.prices.length === 2
-                          ? `Reg ₱${item.prices[0]} | Lrg ₱${item.prices[1]}`
-                          : item.prices && item.prices.length === 1
-                            ? `₱${item.prices[0]}`
-                            : "Malaman"}
-                      </p>
+                {items.map((item) => {
+                  const parsedPrices =
+                    typeof item.prices === "string"
+                      ? JSON.parse(item.prices)
+                      : item.prices;
+                  return (
+                    <div
+                      key={item.id}
+                      className={`flex flex-col p-3 border rounded ${!item.is_available ? "bg-gray-100" : ""}`}
+                    >
+                      <div className="mb-2">
+                        <p className="font-bold text-sm">{item.name}</p>
+                        <p className="text-xs font-bold text-black">
+                          {parsedPrices.length === 2
+                            ? `Reg ₱${parsedPrices[0]} | Lrg ₱${parsedPrices[1]}`
+                            : `₱${parsedPrices[0]}`}
+                        </p>
+                      </div>
+                      <div className="flex gap-2 mt-auto pt-2 border-t border-gray-200">
+                        <button
+                          onClick={() => handleEditClick(item)}
+                          className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 text-xs rounded flex-1"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() =>
+                            toggleAvailability(item.id, item.is_available)
+                          }
+                          className={`px-2 py-1 text-xs rounded text-white flex-1 ${item.is_available ? "bg-orange-500 hover:bg-orange-600" : "bg-green-500 hover:bg-green-600"}`}
+                        >
+                          {item.is_available
+                            ? "Out of Stock"
+                            : "Mark Available"}
+                        </button>
+                        <button
+                          onClick={() => deleteItem(item.id)}
+                          className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 text-xs rounded flex-1"
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </div>
-                    <div className="flex gap-2 mt-auto pt-2 border-t border-gray-200">
-                      <button
-                        onClick={() => handleEditClick(item)}
-                        className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 text-xs rounded flex-1"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => toggleAvailability(item.id)}
-                        className={`px-2 py-1 text-xs rounded text-white flex-1 ${item.is_available ? "bg-orange-500 hover:bg-orange-600" : "bg-green-500 hover:bg-green-600"}`}
-                      >
-                        {item.is_available ? "Out of Stock" : "Mark Available"}
-                      </button>
-                      <button
-                        onClick={() => deleteItem(item.id)}
-                        className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 text-xs rounded flex-1"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           );
@@ -701,7 +740,6 @@ function Footer() {
           href="https://www.facebook.com/share/19r92beb3W/"
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="Facebook"
           className="hover:text-gold transition-colors"
         >
           <IconFb />
@@ -710,7 +748,6 @@ function Footer() {
           href="https://www.instagram.com/esmeraldoscafe?rpxt=dTFlM3R4MzRyYXg="
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="Instagram"
           className="hover:text-gold transition-colors"
         >
           <IconIg />
@@ -731,15 +768,56 @@ function Footer() {
 function App() {
   const [view, setView] = useState("customer");
   const [currentStaff, setCurrentStaff] = useState(null);
+  const [menuData, setMenuData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const [menuData, setMenuData] = useState(() => {
-    const saved = localStorage.getItem("esmeraldos_menu_v20");
-    return saved ? JSON.parse(saved) : PRODUCTS;
-  });
+  const fetchMenu = async () => {
+    const { data, error } = await supabaseClient
+      .from("menu_items")
+      .select("*")
+      .order("id", { ascending: true });
+    if (!error) setMenuData(data || []);
+  };
 
   useEffect(() => {
-    localStorage.setItem("esmeraldos_menu_v20", JSON.stringify(menuData));
-  }, [menuData]);
+    const initializeApp = async () => {
+      setLoading(true);
+
+      const isMigrated = localStorage.getItem("esmeraldo_menu_migrated_v1");
+
+      if (!isMigrated) {
+        console.log("First time load: Migrating hardcoded menu to Supabase...");
+        const { data: existingData } = await supabaseClient
+          .from("menu_items")
+          .select("name");
+        const existingNames = existingData
+          ? existingData.map((d) => d.name)
+          : [];
+
+        const toInsert = PRODUCTS.filter(
+          (p) => !existingNames.includes(p.name),
+        ).map((p) => ({
+          name: p.name,
+          category: p.category,
+          prices: p.prices,
+          description: p.description || "",
+          image_url: p.image_url || null,
+          is_available: true,
+          is_new: p.is_new || false,
+        }));
+
+        if (toInsert.length > 0) {
+          await supabaseClient.from("menu_items").insert(toInsert);
+        }
+        localStorage.setItem("esmeraldo_menu_migrated_v1", "true");
+      }
+
+      await fetchMenu();
+      setLoading(false);
+    };
+
+    initializeApp();
+  }, []);
 
   const handleLogin = (staff) => {
     setCurrentStaff(staff);
@@ -750,9 +828,24 @@ function App() {
     setView("customer");
   };
 
-  const featured = FEATURED_IDS.map((id) =>
-    menuData.find((p) => p.id === id),
-  ).filter(Boolean);
+  // FEATURED ITEMS LOGIC (Inayos para hindi madoble ang Spanish Latte)
+  const featuredNames = [
+    "Chicken Ala King",
+    "Biscoff Frappe",
+    "Lasagna Fritta",
+    "Spanish Latte",
+  ];
+
+  let featured = menuData
+    .filter(
+      (p) => featuredNames.includes(p.name) && p.category !== "Hot Coffee", // <--- Ito yung nag-fifilter para hindi isama yung Hot Coffee na Spanish Latte
+    )
+    .slice(0, 4);
+
+  // Fallback just in case walang exact match
+  if (featured.length === 0) {
+    featured = menuData.filter((p) => p.is_new).slice(0, 4);
+  }
 
   return (
     <div className="min-h-screen flex flex-col relative">
@@ -762,32 +855,37 @@ function App() {
         currentStaff={currentStaff}
         onLogout={handleLogout}
       />
-
       {view === "customer" && (
         <main className="flex-grow pt-[68px]">
           <Hero />
-
           <section
             id="about"
             className="mx-auto max-w-3xl px-4 py-12 text-center"
           >
             <h2 className="text-3xl font-bold text-black">About Us</h2>
-            <p className="mt-4 text-lg">Welcome To esmeraldo's cafe, your cozy corner for comfort and connection. We serve freshly brewed coffee, handcrafted pastries, and hearty meals</p>
+            <p className="mt-4 text-lg">
+              Welcome To esmeraldo's cafe, your cozy corner for comfort and
+              connection. We serve freshly brewed coffee, handcrafted pastries,
+              and hearty meals
+            </p>
           </section>
-          <section className="mx-auto max-w-6xl px-4 pb-4">
-            <h2 className="text-center text-3xl font-bold mb-6 text-black">
-              Featured Items
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {featured.map((p) => (
-                <ProductCard key={p.id} product={p} />
-              ))}
-            </div>
-          </section>
-          <MenuGrid products={menuData} />
+
+          {!loading && featured.length > 0 && (
+            <section className="mx-auto max-w-6xl px-4 pb-4">
+              <h2 className="text-center text-3xl font-bold mb-6 text-black">
+                Featured Items
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {featured.map((p) => (
+                  <ProductCard key={p.id} product={p} />
+                ))}
+              </div>
+            </section>
+          )}
+
+          <MenuGrid products={menuData} loading={loading} />
         </main>
       )}
-
       {view === "login" && (
         <main className="flex-grow bg-[#f6f5f4]">
           <StaffLogin
@@ -796,17 +894,15 @@ function App() {
           />
         </main>
       )}
-
       {view === "staff" && currentStaff && (
         <main className="flex-grow bg-[#f6f5f4]">
           <StaffDashboard
             menuData={menuData}
-            setMenuData={setMenuData}
+            fetchMenu={fetchMenu}
             currentStaff={currentStaff}
           />
         </main>
       )}
-
       <Footer />
     </div>
   );
