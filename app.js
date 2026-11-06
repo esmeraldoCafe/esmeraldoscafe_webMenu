@@ -83,7 +83,7 @@ function FloatingInput({ label, className, ...props }) {
   const [focused, setFocused] = useState(false);
   const [hasValue, setHasValue] = useState(false);
   return (
-    <div className="relative">
+    <div className="relative w-full">
       <input
         className={`peer w-full px-4 py-3 border rounded-lg bg-transparent outline-none border-gray-300 focus:border-emerald-brand transition-colors ${className || ""}`}
         placeholder=" "
@@ -111,6 +111,7 @@ function FloatingInput({ label, className, ...props }) {
 function Header({ view, setView, currentStaff, onLogout }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target))
@@ -119,6 +120,7 @@ function Header({ view, setView, currentStaff, onLogout }) {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
   const handleLogoutClick = () => {
     if (window.confirm("Are you sure you want to log out?")) {
       setIsDropdownOpen(false);
@@ -157,9 +159,14 @@ function Header({ view, setView, currentStaff, onLogout }) {
                   Current View
                 </p>
                 <p className="font-bold text-emerald-brand">
-                  {view === "staff" ? "Staff Dashboard" : "Customer View"}
+                  {view === "staff"
+                    ? "Staff Dashboard"
+                    : view === "settings"
+                      ? "Store Settings"
+                      : "Customer View"}
                 </p>
               </div>
+
               {view === "customer" && (
                 <button
                   onClick={() => {
@@ -171,13 +178,45 @@ function Header({ view, setView, currentStaff, onLogout }) {
                   Staff Login
                 </button>
               )}
+
               {view === "staff" && (
-                <button
-                  onClick={handleLogoutClick}
-                  className="w-full text-left px-4 py-3 text-red-600 hover:bg-red-50 font-bold"
-                >
-                  Logout
-                </button>
+                <>
+                  <button
+                    onClick={() => {
+                      setIsDropdownOpen(false);
+                      setView("settings");
+                    }}
+                    className="w-full text-left px-4 py-3 text-emerald-brand hover:bg-cream font-bold border-b"
+                  >
+                    Store Settings
+                  </button>
+                  <button
+                    onClick={handleLogoutClick}
+                    className="w-full text-left px-4 py-3 text-red-600 hover:bg-red-50 font-bold"
+                  >
+                    Logout
+                  </button>
+                </>
+              )}
+
+              {view === "settings" && (
+                <>
+                  <button
+                    onClick={() => {
+                      setIsDropdownOpen(false);
+                      setView("staff");
+                    }}
+                    className="w-full text-left px-4 py-3 text-emerald-brand hover:bg-cream font-bold border-b"
+                  >
+                    Back to Dashboard
+                  </button>
+                  <button
+                    onClick={handleLogoutClick}
+                    className="w-full text-left px-4 py-3 text-red-600 hover:bg-red-50 font-bold"
+                  >
+                    Logout
+                  </button>
+                </>
               )}
             </div>
           )}
@@ -314,7 +353,9 @@ function MenuGrid({ products, loading }) {
   return (
     <section id="menu" className="mx-auto max-w-6xl px-4 py-12">
       <h2 className="text-center text-3xl font-bold mb-6 text-black">Menu</h2>
-      <div className="sticky top-[68px] z-20 bg-[#f6f5f4] py-3 -mx-4 px-4 shadow-sm flex gap-2 overflow-x-auto hide-scrollbar">
+
+      {/* IN-ADJUST NATIN ITO PARA LUMABAS YUNG SCROLLBAR */}
+      <div className="sticky top-[68px] z-20 bg-[#f6f5f4] py-3 -mx-4 px-4 shadow-sm flex gap-2 overflow-x-auto custom-scrollbar-horizontal pb-3">
         {["All", ...CATEGORIES].map((c) => (
           <button
             key={c}
@@ -325,6 +366,7 @@ function MenuGrid({ products, loading }) {
           </button>
         ))}
       </div>
+
       <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {shown.map((p) => (
           <ProductCard key={p.id} product={p} />
@@ -558,7 +600,7 @@ function StaffDashboard({ menuData, fetchMenu, currentStaff }) {
       </div>
 
       <div
-        className={`bg-white p-6 rounded-lg shadow-md mb-8 border-t-4 ${isEditing ? "border-blue-500" : "border-gold"}`}
+        className={`bg-white p-4 md:p-6 rounded-lg shadow-md mb-8 border-t-4 w-full overflow-hidden ${isEditing ? "border-blue-500" : "border-gold"}`}
       >
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold text-emerald-brand">
@@ -574,22 +616,22 @@ function StaffDashboard({ menuData, fetchMenu, currentStaff }) {
           )}
         </div>
 
-        <form onSubmit={handleSaveItem} className="flex flex-col gap-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <form onSubmit={handleSaveItem} className="flex flex-col gap-4 w-full">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 w-full">
             <input
               type="text"
               name="name"
               placeholder="Dish Name"
               value={formData.name}
               onChange={handleChange}
-              className="border p-2 rounded md:col-span-2"
+              className="border p-2 rounded w-full md:col-span-2"
               required
             />
             <select
               name="category"
               value={formData.category}
               onChange={handleChange}
-              className="border p-2 rounded"
+              className="border p-2 rounded w-full"
             >
               {CATEGORIES.map((cat) => (
                 <option key={cat} value={cat}>
@@ -603,28 +645,29 @@ function StaffDashboard({ menuData, fetchMenu, currentStaff }) {
               placeholder="Reg Price"
               value={formData.regPrice}
               onChange={handleChange}
-              className="border p-2 rounded"
+              className="border p-2 rounded w-full"
               required
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
             <input
               type="number"
               name="largePrice"
               placeholder="Large Price (Optional)"
               value={formData.largePrice}
               onChange={handleChange}
-              className="border p-2 rounded"
+              className="border p-2 rounded w-full"
             />
-            <div className="md:col-span-2 flex items-center gap-2">
+
+            <div className="md:col-span-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full">
               <input
                 type="text"
                 name="image_url"
-                placeholder="Image URL (auto-fills upon upload)"
+                placeholder="Image URL (auto-fills)"
                 value={formData.image_url}
                 readOnly
-                className="border p-2 rounded flex-grow bg-gray-50 text-gray-500 text-sm"
+                className="border p-2 rounded w-full bg-gray-50 text-gray-500 text-sm flex-1 min-w-0"
               />
               <input
                 type="file"
@@ -637,7 +680,7 @@ function StaffDashboard({ menuData, fetchMenu, currentStaff }) {
                 type="button"
                 onClick={() => fileInputRef.current.click()}
                 disabled={uploading}
-                className="bg-gray-800 text-white px-4 py-2 rounded font-bold text-sm hover:bg-gray-900 whitespace-nowrap"
+                className="bg-gray-800 text-white px-4 py-2 rounded font-bold text-sm hover:bg-gray-900 whitespace-nowrap shrink-0 w-full sm:w-auto"
               >
                 {uploading ? "Uploading..." : "Upload Image"}
               </button>
@@ -651,10 +694,11 @@ function StaffDashboard({ menuData, fetchMenu, currentStaff }) {
             onChange={handleChange}
             className="border p-2 rounded w-full h-20"
           ></textarea>
+
           <button
             type="submit"
             disabled={uploading}
-            className={`text-white px-6 py-3 rounded font-bold w-full md:w-auto md:self-end ${isEditing ? "bg-blue-600 hover:bg-blue-700" : "bg-emerald-brand hover:bg-emerald-dark"}`}
+            className={`text-white px-6 py-3 rounded font-bold w-full md:w-auto md:self-end mt-2 ${isEditing ? "bg-blue-600 hover:bg-blue-700" : "bg-emerald-brand hover:bg-emerald-dark"}`}
           >
             {isEditing ? "Save Changes" : "Add Dish"}
           </button>
@@ -692,10 +736,10 @@ function StaffDashboard({ menuData, fetchMenu, currentStaff }) {
                             : `₱${parsedPrices[0]}`}
                         </p>
                       </div>
-                      <div className="flex gap-2 mt-auto pt-2 border-t border-gray-200">
+                      <div className="flex flex-wrap sm:flex-nowrap gap-1 sm:gap-2 mt-auto pt-2 border-t border-gray-200">
                         <button
                           onClick={() => handleEditClick(item)}
-                          className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 text-xs rounded flex-1"
+                          className="bg-blue-500 hover:bg-blue-600 text-white px-1 py-1 text-[10px] sm:text-xs rounded flex-1 whitespace-nowrap"
                         >
                           Edit
                         </button>
@@ -703,7 +747,7 @@ function StaffDashboard({ menuData, fetchMenu, currentStaff }) {
                           onClick={() =>
                             toggleAvailability(item.id, item.is_available)
                           }
-                          className={`px-2 py-1 text-xs rounded text-white flex-1 ${item.is_available ? "bg-orange-500 hover:bg-orange-600" : "bg-green-500 hover:bg-green-600"}`}
+                          className={`px-1 py-1 text-[10px] sm:text-xs rounded text-white flex-1 whitespace-nowrap ${item.is_available ? "bg-orange-500 hover:bg-orange-600" : "bg-green-500 hover:bg-green-600"}`}
                         >
                           {item.is_available
                             ? "Out of Stock"
@@ -711,7 +755,7 @@ function StaffDashboard({ menuData, fetchMenu, currentStaff }) {
                         </button>
                         <button
                           onClick={() => deleteItem(item.id)}
-                          className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 text-xs rounded flex-1"
+                          className="bg-red-500 hover:bg-red-600 text-white px-1 py-1 text-[10px] sm:text-xs rounded flex-1 whitespace-nowrap"
                         >
                           Delete
                         </button>
@@ -728,13 +772,88 @@ function StaffDashboard({ menuData, fetchMenu, currentStaff }) {
   );
 }
 
-/* ================= FOOTER ================= */
-function Footer() {
+/* ================= SETTINGS VIEW ================= */
+function SettingsView({ storeSettings, setStoreSettings, onBack }) {
+  const [formData, setFormData] = useState(storeSettings);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setStoreSettings(formData);
+    alert("Store settings saved successfully!");
+    onBack();
+  };
+
   return (
-    <footer className="bg-emerald-brand py-10 text-center text-cream mt-12">
-      <p className="text-lg italic font-bold">
-        Every bite here is made to make you smile
-      </p>
+    <div className="max-w-4xl mx-auto w-full p-4 md:p-8 pt-32">
+      <div className="bg-white p-6 rounded-lg shadow-md border-t-4 border-emerald-brand">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold text-emerald-brand">
+            Store Settings
+          </h1>
+          <button
+            onClick={onBack}
+            className="text-sm text-gray-500 underline font-bold"
+          >
+            Back to Dashboard
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <div>
+            <label className="block font-bold mb-2 text-gray-700">
+              About Us Text
+            </label>
+            <textarea
+              value={formData.aboutUs}
+              onChange={(e) =>
+                setFormData({ ...formData, aboutUs: e.target.value })
+              }
+              className="border p-2 rounded w-full h-24"
+            />
+          </div>
+          <div>
+            <label className="block font-bold mb-2 text-gray-700">
+              Footer Tagline
+            </label>
+            <input
+              type="text"
+              value={formData.tagline}
+              onChange={(e) =>
+                setFormData({ ...formData, tagline: e.target.value })
+              }
+              className="border p-2 rounded w-full"
+            />
+          </div>
+          <div>
+            <label className="block font-bold mb-2 text-gray-700">
+              Contact Number
+            </label>
+            <input
+              type="text"
+              value={formData.phone}
+              onChange={(e) =>
+                setFormData({ ...formData, phone: e.target.value })
+              }
+              className="border p-2 rounded w-full"
+            />
+          </div>
+          <button
+            type="submit"
+            className="bg-emerald-brand text-white py-3 rounded font-bold mt-4 hover:bg-emerald-dark"
+          >
+            Save Settings
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+/* ================= FOOTER ================= */
+function Footer({ settings }) {
+  return (
+    <footer className="bg-emerald-brand py-10 text-center text-cream mt-12 w-full">
+      <p className="text-lg italic font-bold px-4">"{settings.tagline}"</p>
       <div className="mt-4 flex items-center justify-center gap-5">
         <a
           href="https://www.facebook.com/share/19r92beb3W/"
@@ -753,10 +872,10 @@ function Footer() {
           <IconIg />
         </a>
         <a
-          href="tel:09567993648"
+          href={`tel:${settings.phone}`}
           className="flex items-center gap-1 hover:text-gold font-bold transition-colors"
         >
-          <IconPhone size={18} /> 0956-799-3648
+          <IconPhone size={18} /> {settings.phone}
         </a>
       </div>
       <p className="mt-4 text-xs text-cream/60">© Esmeraldo's Cafe</p>
@@ -771,22 +890,42 @@ function App() {
   const [menuData, setMenuData] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // STORE SETTINGS STATE
+  const [storeSettings, setStoreSettings] = useState(() => {
+    const saved = localStorage.getItem("esmeraldo_store_settings");
+    return saved
+      ? JSON.parse(saved)
+      : {
+          aboutUs:
+            "Welcome To esmeraldo's cafe, your cozy corner for comfort and connection. We serve freshly brewed coffee, handcrafted pastries, and hearty meals",
+          tagline: "Every bite here is made to make you smile",
+          phone: "0956-799-3648",
+        };
+  });
+
+  useEffect(() => {
+    localStorage.setItem(
+      "esmeraldo_store_settings",
+      JSON.stringify(storeSettings),
+    );
+  }, [storeSettings]);
+
+  // FETCH MENU FROM SUPABASE
   const fetchMenu = async () => {
     const { data, error } = await supabaseClient
       .from("menu_items")
       .select("*")
-      .order("id", { ascending: true });
+      .order("id", { ascending: false });
     if (!error) setMenuData(data || []);
   };
 
+  // INITIAL MIGRATION LOGIC
   useEffect(() => {
     const initializeApp = async () => {
       setLoading(true);
-
-      const isMigrated = localStorage.getItem("esmeraldo_menu_migrated_v1");
+      const isMigrated = localStorage.getItem("esmeraldo_menu_migrated_v3");
 
       if (!isMigrated) {
-        console.log("First time load: Migrating hardcoded menu to Supabase...");
         const { data: existingData } = await supabaseClient
           .from("menu_items")
           .select("name");
@@ -809,7 +948,7 @@ function App() {
         if (toInsert.length > 0) {
           await supabaseClient.from("menu_items").insert(toInsert);
         }
-        localStorage.setItem("esmeraldo_menu_migrated_v1", "true");
+        localStorage.setItem("esmeraldo_menu_migrated_v3", "true");
       }
 
       await fetchMenu();
@@ -828,33 +967,29 @@ function App() {
     setView("customer");
   };
 
-  // FEATURED ITEMS LOGIC (Inayos para hindi madoble ang Spanish Latte)
   const featuredNames = [
     "Chicken Ala King",
     "Biscoff Frappe",
     "Lasagna Fritta",
     "Spanish Latte",
   ];
-
   let featured = menuData
     .filter(
-      (p) => featuredNames.includes(p.name) && p.category !== "Hot Coffee", // <--- Ito yung nag-fifilter para hindi isama yung Hot Coffee na Spanish Latte
+      (p) => featuredNames.includes(p.name) && p.category !== "Hot Coffee",
     )
     .slice(0, 4);
-
-  // Fallback just in case walang exact match
-  if (featured.length === 0) {
+  if (featured.length === 0)
     featured = menuData.filter((p) => p.is_new).slice(0, 4);
-  }
 
   return (
-    <div className="min-h-screen flex flex-col relative">
+    <div className="min-h-screen flex flex-col relative w-full">
       <Header
         view={view}
         setView={setView}
         currentStaff={currentStaff}
         onLogout={handleLogout}
       />
+
       {view === "customer" && (
         <main className="flex-grow pt-[68px]">
           <Hero />
@@ -863,11 +998,7 @@ function App() {
             className="mx-auto max-w-3xl px-4 py-12 text-center"
           >
             <h2 className="text-3xl font-bold text-black">About Us</h2>
-            <p className="mt-4 text-lg">
-              Welcome To esmeraldo's cafe, your cozy corner for comfort and
-              connection. We serve freshly brewed coffee, handcrafted pastries,
-              and hearty meals
-            </p>
+            <p className="mt-4 text-lg">{storeSettings.aboutUs}</p>
           </section>
 
           {!loading && featured.length > 0 && (
@@ -886,6 +1017,7 @@ function App() {
           <MenuGrid products={menuData} loading={loading} />
         </main>
       )}
+
       {view === "login" && (
         <main className="flex-grow bg-[#f6f5f4]">
           <StaffLogin
@@ -894,6 +1026,7 @@ function App() {
           />
         </main>
       )}
+
       {view === "staff" && currentStaff && (
         <main className="flex-grow bg-[#f6f5f4]">
           <StaffDashboard
@@ -903,7 +1036,18 @@ function App() {
           />
         </main>
       )}
-      <Footer />
+
+      {view === "settings" && currentStaff && (
+        <main className="flex-grow bg-[#f6f5f4]">
+          <SettingsView
+            storeSettings={storeSettings}
+            setStoreSettings={setStoreSettings}
+            onBack={() => setView("staff")}
+          />
+        </main>
+      )}
+
+      <Footer settings={storeSettings} />
     </div>
   );
 }
