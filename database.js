@@ -18,6 +18,7 @@ const mk = (category, rows, suffix = "") =>
   }));
 
 const CATEGORIES = [
+  "Promos and Deals",
   "All Day Breakfast",
   "Waffle",
   "Snacks",
