@@ -1002,8 +1002,8 @@ function App() {
           </section>
 
           {!loading && featured.length > 0 && (
-            <section className="mx-auto max-w-6xl px-4 pb-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <section className="mx-auto max-w-0 px-0 pb-0">
+              <div className="grid grid-cols-0 sm:grid-cols-0 lg:grid-cols-0 gap-0">
               </div>
             </section>
           )}
