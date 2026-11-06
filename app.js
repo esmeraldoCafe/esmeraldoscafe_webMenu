@@ -1003,13 +1003,7 @@ function App() {
 
           {!loading && featured.length > 0 && (
             <section className="mx-auto max-w-6xl px-4 pb-4">
-              <h2 className="text-center text-3xl font-bold mb-6 text-black">
-                Featured Items
-              </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {featured.map((p) => (
-                  <ProductCard key={p.id} product={p} />
-                ))}
               </div>
             </section>
           )}
