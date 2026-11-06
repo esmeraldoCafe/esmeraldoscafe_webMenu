@@ -747,11 +747,11 @@ function StaffDashboard({ menuData, fetchMenu, currentStaff }) {
                           onClick={() =>
                             toggleAvailability(item.id, item.is_available)
                           }
-                          className={`px-1 py-1 text-[10px] sm:text-xs rounded text-white flex-1 whitespace-nowrap ${item.is_available ? "bg-orange-500 hover:bg-orange-600" : "bg-green-500 hover:bg-green-600"}`}
+                          className={`px-1 py-1 text-[10px] sm:text-xs rounded text-white flex-1 whitespace-nowrap ${item.is_available ? "bg-green-500 hover:bg-green-600" : "bg-orange-500 hover:bg-orange-600"}`}
                         >
                           {item.is_available
-                            ? "Out of Stock"
-                            : "Mark Available"}
+                            ? "Available"
+                            : "Out of Stock"}
                         </button>
                         <button
                           onClick={() => deleteItem(item.id)}
