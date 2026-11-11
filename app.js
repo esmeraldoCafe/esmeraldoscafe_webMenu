@@ -1,12 +1,12 @@
 const { useState, useEffect, useRef } = React;
 
-/* ================= SUPABASE CONFIGURATION ================= */
+/* SUPABASE CONFIGURATION */
 const SUPABASE_URL = "https://wvesfkcmtvfubvkcirrk.supabase.co";
 const SUPABASE_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind2ZXNma2NtdHZmdWJ2a2NpcnJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM5MDYxMTgsImV4cCI6MjEwOTQ4MjExOH0.SdA0LVvhTZpjHcZXUc6FBOM0K_gUbC6wBVynbIb3Yho";
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-/* ================= ICONS ================= */
+/* ICONS */
 const Svg = ({ size = 24, children }) => (
   <svg
     width={size}
@@ -62,7 +62,7 @@ const IconIg = (p) => (
   </Svg>
 );
 
-/* ================= HELPERS ================= */
+/* HELPERS */
 const fmt = (n) => `₱${n}`;
 const priceLabel = (p) => {
   let pArr = p.prices;
@@ -73,12 +73,12 @@ const priceLabel = (p) => {
       pArr = [];
     }
   }
-  if (!pArr || pArr.length === 0) return "Malaman";
+  if (!pArr || pArr.length === 0) return "Price Unavailable";
   if (pArr.length === 1) return fmt(pArr[0]);
   return `Regular ${fmt(pArr[0])} | Large ${fmt(pArr[1])}`;
 };
 
-/* ================= FLOATING INPUT ================= */
+/* FLOATING INPUT */
 function FloatingInput({ label, className, ...props }) {
   const [focused, setFocused] = useState(false);
   const [hasValue, setHasValue] = useState(false);
@@ -107,7 +107,7 @@ function FloatingInput({ label, className, ...props }) {
   );
 }
 
-/* ================= HEADER ================= */
+/* HEADER */
 function Header({ view, setView, currentStaff, onLogout }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -226,7 +226,7 @@ function Header({ view, setView, currentStaff, onLogout }) {
   );
 }
 
-/* ================= HERO SECTION ================= */
+/* HERO SECTION */
 function Hero() {
   const [imageError, setImageError] = useState(false);
   return (
@@ -242,7 +242,7 @@ function Hero() {
         ) : (
           <div className="w-full max-w-[300px] md:max-w-[500px] aspect-square border-4 border-dashed border-emerald-dark flex items-center justify-center bg-emerald-dark/30">
             <span className="text-cream/50 font-bold text-xl">
-              LOGO.PNG MISSING
+              ESMERALDO'S CAFE LOGO
             </span>
           </div>
         )}
@@ -251,7 +251,7 @@ function Hero() {
   );
 }
 
-/* ================= PRODUCT CARD ================= */
+/* PRODUCT CARD */
 function ProductCard({ product }) {
   const [isOpen, setIsOpen] = useState(false);
   const { name, description, image_url, is_available, is_new } = product;
@@ -271,7 +271,9 @@ function ProductCard({ product }) {
             <span className="placeholder-text">Image Unavailable</span>
           </div>
         )}
+
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity" />
+
         {is_new && (
           <span className="absolute left-2 top-2 rounded bg-gold px-2 py-0.5 text-xs font-semibold text-emerald-dark z-10">
             New
@@ -282,15 +284,19 @@ function ProductCard({ product }) {
             Sold Out
           </span>
         )}
-        <div className="absolute bottom-0 left-0 p-4 w-full translate-y-2 group-hover:translate-y-0 transition-transform duration-300 z-10">
-          <p className="text-gold text-xs font-bold tracking-wide uppercase mb-1">
+
+        {/* CARD PRICE TAG*/}
+        <div className="absolute bottom-0 left-0 p-4 w-full translate-y-2 group-hover:translate-y-0 transition-transform duration-300 z-10 flex flex-col items-start gap-2">
+          <span className="inline-block bg-black/25 backdrop-blur-sm text-[#dbb83f] text-base sm:text-base font-bold tracking-wide uppercase px-3 py-1 rounded-md shadow-sm">
             {priceLabel(product)}
-          </p>
-          <h3 className="text-lg font-bold tracking-tight text-white">
+          </span>
+
+          <h3 className="text-2xl font-bold tracking-tight text-white drop-shadow-md">
             {name}
           </h3>
         </div>
       </div>
+
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div
@@ -313,14 +319,17 @@ function ProductCard({ product }) {
                 </div>
               )}
             </div>
+
             <div className="p-6 flex flex-col overflow-y-auto max-h-[40vh] custom-scrollbar">
-              <p className="text-gold text-sm font-bold tracking-wide uppercase mb-2">
+              <p className="text-[#9e801f] text-lg font-semibold tracking-wide uppercase mb-2">
                 {priceLabel(product)}
               </p>
+
               <h3 className="text-2xl font-bold text-emerald-brand mb-4 pb-4 border-b border-gray-200">
                 {name}
               </h3>
-              <div className="text-gray-600 text-sm leading-relaxed grow">
+
+              <div className="text-gray-700 text-base leading-relaxed grow">
                 {description ? (
                   <p>{description}</p>
                 ) : (
@@ -335,7 +344,7 @@ function ProductCard({ product }) {
   );
 }
 
-/* ================= MENU GRID ================= */
+/* MENU GRID */
 function MenuGrid({ products, loading }) {
   const [category, setCategory] = useState("All");
   const shown =
@@ -351,16 +360,15 @@ function MenuGrid({ products, loading }) {
     );
 
   return (
-    <section id="menu" className="mx-auto max-w-6xl px-4 py-12">
+    <section id="menu" className="mx-auto max-w-6xl px-4 pt-6 pb-12">
       <h2 className="text-center text-3xl font-bold mb-6 text-black">Menu</h2>
 
-      {/* IN-ADJUST NATIN ITO PARA LUMABAS YUNG SCROLLBAR */}
       <div className="sticky top-[68px] z-20 bg-[#f6f5f4] py-3 -mx-4 px-4 shadow-sm flex gap-2 overflow-x-auto custom-scrollbar-horizontal pb-3">
         {["All", ...CATEGORIES].map((c) => (
           <button
             key={c}
             onClick={() => setCategory(c)}
-            className={`shrink-0 rounded-full border px-4 py-1.5 text-sm font-bold transition-all duration-300 transform ${c === category ? "border-emerald-brand bg-emerald-brand text-cream scale-105 shadow-md" : "border-gray-300 text-gray-600 hover:border-gold hover:text-gold bg-white hover:-translate-y-0.5"}`}
+            className={`shrink-0 rounded-full border px-5 py-2 text-base font-bold transition-all duration-300 transform ${c === category ? "border-emerald-brand bg-emerald-brand text-cream scale-105 shadow-md" : "border-gray-300 text-gray-700 hover:border-gold hover:text-gold bg-white hover:-translate-y-0.5"}`}
           >
             {c}
           </button>
@@ -376,7 +384,7 @@ function MenuGrid({ products, loading }) {
   );
 }
 
-/* ================= STAFF LOGIN ================= */
+/* STAFF LOGIN */
 function StaffLogin({ onLogin, onBack }) {
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
@@ -449,7 +457,7 @@ function StaffLogin({ onLogin, onBack }) {
   );
 }
 
-/* ================= STAFF DASHBOARD ================= */
+/* STAFF DASHBOARD */
 function StaffDashboard({ menuData, fetchMenu, currentStaff }) {
   const [isEditing, setIsEditing] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -659,7 +667,6 @@ function StaffDashboard({ menuData, fetchMenu, currentStaff }) {
               onChange={handleChange}
               className="border p-2 rounded w-full"
             />
-
             <div className="md:col-span-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full">
               <input
                 type="text"
@@ -749,9 +756,7 @@ function StaffDashboard({ menuData, fetchMenu, currentStaff }) {
                           }
                           className={`px-1 py-1 text-[10px] sm:text-xs rounded text-white flex-1 whitespace-nowrap ${item.is_available ? "bg-green-500 hover:bg-green-600" : "bg-orange-500 hover:bg-orange-600"}`}
                         >
-                          {item.is_available
-                            ? "Available"
-                            : "Out of Stock"}
+                          {item.is_available ? "Available" : "Out of Stock"}
                         </button>
                         <button
                           onClick={() => deleteItem(item.id)}
@@ -772,7 +777,7 @@ function StaffDashboard({ menuData, fetchMenu, currentStaff }) {
   );
 }
 
-/* ================= SETTINGS VIEW ================= */
+/* SETTINGS VIEW */
 function SettingsView({ storeSettings, setStoreSettings, onBack }) {
   const [formData, setFormData] = useState(storeSettings);
 
@@ -849,11 +854,11 @@ function SettingsView({ storeSettings, setStoreSettings, onBack }) {
   );
 }
 
-/* ================= FOOTER ================= */
+/* FOOTER */
 function Footer({ settings }) {
   return (
     <footer className="bg-emerald-brand py-10 text-center text-cream mt-12 w-full">
-      <p className="text-lg italic font-bold px-4">"{settings.tagline}"</p>
+      <p className="text-xl italic font-bold px-4">"{settings.tagline}"</p>
       <div className="mt-4 flex items-center justify-center gap-5">
         <a
           href="https://www.facebook.com/share/19r92beb3W/"
@@ -883,10 +888,18 @@ function Footer({ settings }) {
   );
 }
 
-/* ================= MAIN APP ================= */
+/* MAIN APP */
 function App() {
-  const [view, setView] = useState("customer");
-  const [currentStaff, setCurrentStaff] = useState(null);
+  const [view, setView] = useState(() => {
+    const savedStaff = localStorage.getItem("esmeraldo_current_staff");
+    return savedStaff ? "staff" : "customer";
+  });
+
+  const [currentStaff, setCurrentStaff] = useState(() => {
+    const savedStaff = localStorage.getItem("esmeraldo_current_staff");
+    return savedStaff ? JSON.parse(savedStaff) : null;
+  });
+
   const [menuData, setMenuData] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -961,25 +974,14 @@ function App() {
   const handleLogin = (staff) => {
     setCurrentStaff(staff);
     setView("staff");
+    localStorage.setItem("esmeraldo_current_staff", JSON.stringify(staff));
   };
+
   const handleLogout = () => {
     setCurrentStaff(null);
     setView("customer");
+    localStorage.removeItem("esmeraldo_current_staff");
   };
-
-  const featuredNames = [
-    "Chicken Ala King",
-    "Biscoff Frappe",
-    "Lasagna Fritta",
-    "Spanish Latte",
-  ];
-  let featured = menuData
-    .filter(
-      (p) => featuredNames.includes(p.name) && p.category !== "Hot Coffee",
-    )
-    .slice(0, 4);
-  if (featured.length === 0)
-    featured = menuData.filter((p) => p.is_new).slice(0, 4);
 
   return (
     <div className="min-h-screen flex flex-col relative w-full">
@@ -993,20 +995,16 @@ function App() {
       {view === "customer" && (
         <main className="flex-grow pt-[68px]">
           <Hero />
+
           <section
             id="about"
-            className="mx-auto max-w-3xl px-4 py-12 text-center"
+            className="mx-auto max-w-3xl px-4 pt-12 pb-4 text-center"
           >
-            <h2 className="text-3xl font-bold text-black">About Us</h2>
-            <p className="mt-4 text-lg">{storeSettings.aboutUs}</p>
+            <h2 className="text-4xl font-bold text-black mb-4">About Us</h2>
+            <p className="mt-4 text-xl text-gray-800 leading-relaxed">
+              {storeSettings.aboutUs}
+            </p>
           </section>
-
-          {!loading && featured.length > 0 && (
-            <section className="mx-auto max-w-0 px-0 pb-0">
-              <div className="grid grid-cols-0 sm:grid-cols-0 lg:grid-cols-0 gap-0">
-              </div>
-            </section>
-          )}
 
           <MenuGrid products={menuData} loading={loading} />
         </main>
