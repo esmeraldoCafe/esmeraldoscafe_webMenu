@@ -1,6 +1,6 @@
-/* STRICT ARIAL FONT - No elegant styles */
+/* STRICT ARIAL FONT */
 * {
-  font-family: Arial, Helvetica, sans-serif !important;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 body {
@@ -32,9 +32,9 @@ h3 {
 }
 
 .placeholder-text {
-  color: #6e7786;
+  color: #374151;
   font-weight: bold;
-  font-size: 1rem;
+  font-size: 1.125rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
@@ -73,4 +73,20 @@ h3 {
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
+}
+
+/* Visible Horizontal Scrollbar for Menu Categories */
+.custom-scrollbar-horizontal::-webkit-scrollbar {
+  height: 6px;
+}
+.custom-scrollbar-horizontal::-webkit-scrollbar-track {
+  background: #e5e7eb;
+  border-radius: 10px;
+}
+.custom-scrollbar-horizontal::-webkit-scrollbar-thumb {
+  background: #08442c;
+  border-radius: 10px;
+}
+.custom-scrollbar-horizontal::-webkit-scrollbar-thumb:hover {
+  background: #042b1c;
 }
